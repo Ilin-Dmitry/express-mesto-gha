@@ -9,6 +9,14 @@ const errorMessages = {
   notFoundRefreshUser: ' Пользователь с указанным _id не найден',
 };
 
+class BadRequestError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'BadRequestError';
+    this.statusCode = 400;
+  }
+}
+
 module.exports.showAllUsers = (req, res) => {
   User.find({})
     .then((users) => res.send({ data: users }))
@@ -17,10 +25,17 @@ module.exports.showAllUsers = (req, res) => {
 
 module.exports.showUser = (req, res) => {
   User.findById(req.params.userId)
-    .then((user) => res.send({ data: user }))
-    .catch((err) => errModule.handleError(err, res, {
-      notFoundMessage: errorMessages.notFoundUser,
-    }));
+    .then((user) => {
+      if (!user) {
+        throw new BadRequestError('Ошибочка');
+      }
+      return res.send({ data: user });
+    })
+    .catch((err) => {
+      errModule.handleError(err, res, {
+        notFoundMessage: errorMessages.notFoundUser,
+      });
+    });
 };
 
 module.exports.createUser = (req, res) => {

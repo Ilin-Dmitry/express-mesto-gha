@@ -8,6 +8,10 @@ module.exports = {
       res.status(ERROR_BAD_REQUEST).send({ message: badRequestMessage });
       return;
     }
+    if (err.name === 'BadRequestError') {
+      res.status(ERROR_BAD_REQUEST).send({ message: badRequestMessage });
+      return;
+    }
     if (err.name === 'CastError') {
       res.status(ERROR_NOT_FOUND).send({ message: notFoundMessage });
       return;
