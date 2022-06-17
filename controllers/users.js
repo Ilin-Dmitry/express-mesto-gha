@@ -24,15 +24,17 @@ module.exports.showAllUsers = (req, res) => {
 };
 
 module.exports.showUser = (req, res) => {
+  console.log('res =>', res);
   User.findById(req.params.userId)
     .then((user) => {
       if (!user) {
+        console.log('Здесь ошибка')
         throw new NotFound('Пользователь не найден');
       }
       return res.send({ data: user });
     })
     .catch((err) => {
-      console.log('err => =>', err.name, err.message);
+      console.log('err => =>', err.name, err.message, err);
       errModule.handleError(err, res, {
         notFoundMessage: errorMessages.notFoundUser,
       });
