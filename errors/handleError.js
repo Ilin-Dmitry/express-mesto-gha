@@ -9,7 +9,7 @@ module.exports = {
       return;
     }
     if (err.name === 'BadRequestError') {
-      res.status(ERROR_BAD_REQUEST).send({ message: badRequestMessage });
+      res.status(ERROR_NOT_FOUND ).send({ message: notFoundMessage });
       return;
     }
     if (err.name === 'CastError') {
