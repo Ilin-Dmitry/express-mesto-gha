@@ -8,6 +8,14 @@ const errorMessages = {
   notFoundLike: 'Передан несуществующий id карточки',
 };
 
+class NotFound extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'NotFoundError';
+    this.statusCode = 404;
+  }
+}
+
 module.exports.showAllCards = (req, res) => {
   Card.find({})
     .then((cards) => res.send({ data: cards }))
@@ -33,7 +41,15 @@ module.exports.deleteCard = (req, res) => {
 
 module.exports.likeCard = (req, res) => {
   Card.findByIdAndUpdate(req.params.cardId, { $addToSet: { likes: req.user._id } }, { new: true })
-    .then((card) => res.send({ data: card }))
+    .then((card) => {
+      console.log('req.params.cardId =>', req.params.cardId);
+      console.log('card => ', card);
+      return card;
+    })
+    .then((card) => {
+      if (!card) { throw new NotFound('Карточка не найдена'); }
+      res.send({ data: card });
+    })
     .catch((err) => errModule.handleError(err, res, {
       badRequestMessage: errorMessages.badRequestLike,
       notFoundMessage: errorMessages.notFoundLike,
@@ -42,7 +58,10 @@ module.exports.likeCard = (req, res) => {
 
 module.exports.dislikeCard = (req, res) => {
   Card.findByIdAndUpdate(req.params.cardId, { $pull: { likes: req.user._id } }, { new: true })
-    .then((card) => res.send({ data: card }))
+    .then((card) => {
+      if (!card) { throw new NotFound('Карточка не найдена'); }
+      res.send({ data: card });
+    })
     .catch((err) => errModule.handleError(err, res, {
       badRequestMessage: errorMessages.badRequestLike,
       notFoundMessage: errorMessages.notFoundLike,
