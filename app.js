@@ -23,7 +23,10 @@ app.use('/', require('./routes/users'));
 app.use('/', require('./routes/cards'));
 
 app.use((req, res, next) => {
-  res.status(404).send("Sorry can't find that!");
+  const ERROR_NOT_FOUND = 404;
+  Promise.reject(new Error('Путь не найден'))
+  .catch(() => res.status(ERROR_NOT_FOUND).send({ message: 'Такого адреса не существует' }))
+  // res.status(404).send("Sorry can't find that!");
 })
 // app.use(express.static(path.join(__dirname, 'public')));
 
