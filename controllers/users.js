@@ -45,7 +45,6 @@ module.exports.refreshUser = (req, res) => {
   User.findByIdAndUpdate(req.user._id, { name, about }, {
     new: true,
     runValidators: true,
-    upsert: true,
   })
     .then((user) => res.send({ data: user }))
     .catch((err) => errModule.handleError(err, res, {
@@ -59,7 +58,6 @@ module.exports.refreshUserAvatar = (req, res) => {
   User.findByIdAndUpdate(req.user._id, { avatar }, {
     new: true,
     runValidators: true,
-    upsert: true,
   })
     .then((user) => res.send({ data: user }))
     .catch((err) => errModule.handleError(err, res, {

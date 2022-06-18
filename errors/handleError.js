@@ -4,18 +4,18 @@ module.exports = {
     const ERROR_NOT_FOUND = 404;
     const ERROR_DEFAULT = 500;
 
-    if (err.name === 'ValidationError') {
-      res.status(ERROR_BAD_REQUEST).send({ message: badRequestMessage });
-      return;
+    switch (err.name) {
+      case 'ValidationError':
+        res.status(ERROR_BAD_REQUEST).send({ message: badRequestMessage });
+        break;
+      case 'CastError':
+        res.status(ERROR_BAD_REQUEST).send({ message: badRequestMessage });
+        break;
+      case 'NotFoundError':
+        res.status(ERROR_NOT_FOUND).send({ message: notFoundMessage });
+        break;
+      default:
+        res.status(ERROR_DEFAULT).send({ message: 'ошибка по-умолчанию' });
     }
-    if (err.name === 'CastError') {
-      res.status(ERROR_BAD_REQUEST).send({ message: badRequestMessage });
-      return;
-    }
-    if (err.name === 'NotFoundError') {
-      res.status(ERROR_NOT_FOUND).send({ message: notFoundMessage });
-      return;
-    }
-    res.status(ERROR_DEFAULT).send({ message: 'ошибка по-умолчанию' });
   },
 };

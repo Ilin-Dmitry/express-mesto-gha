@@ -13,7 +13,7 @@
     "type": "git",
     "url": "git+https://github.com/Ilin-Dmitry/express-mesto-gha.git"
   },
-  "author": "",
+  "author": "Dmitry Ilin",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/Ilin-Dmitry/express-mesto-gha/issues"
