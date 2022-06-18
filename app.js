@@ -22,7 +22,7 @@ app.use((req, res, next) => {
 app.use('/', require('./routes/users'));
 app.use('/', require('./routes/cards'));
 
-app.use((req, res, next) => {
+app.use((req, res) => {
   const ERROR_NOT_FOUND = 404;
   Promise.reject(new Error('Путь не найден'))
     .catch(() => res.status(ERROR_NOT_FOUND).send({ message: 'Такого адреса не существует' }));
