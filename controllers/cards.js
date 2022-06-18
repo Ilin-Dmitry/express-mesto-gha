@@ -1,5 +1,6 @@
 const Card = require('../models/card');
 const errModule = require('../errors/handleError');
+const NotFound = require('../errors/NotFound');
 
 const errorMessages = {
   badRequestShowCards: 'Переданы некорректные данные при создании карточки',
@@ -8,12 +9,9 @@ const errorMessages = {
   notFoundLike: 'Передан несуществующий id карточки',
 };
 
-class NotFound extends Error {
-  constructor(message) {
-    super(message);
-    this.name = 'NotFoundError';
-    this.statusCode = 404;
-  }
+function checkCard(card, res) {
+  if (!card) { throw new NotFound('Карточка не найдена'); }
+  res.send({ data: card });
 }
 
 module.exports.showAllCards = (req, res) => {
@@ -34,8 +32,7 @@ module.exports.createCard = (req, res) => {
 module.exports.deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
     .then((card) => {
-      if (!card) { throw new NotFound('Карточка не найдена'); }
-      res.send({ data: card });
+      checkCard(card, res);
     })
     .catch((err) => errModule.handleError(err, res, {
       notFoundMessage: errorMessages.notFoundDeleteCard,
@@ -45,8 +42,7 @@ module.exports.deleteCard = (req, res) => {
 module.exports.likeCard = (req, res) => {
   Card.findByIdAndUpdate(req.params.cardId, { $addToSet: { likes: req.user._id } }, { new: true })
     .then((card) => {
-      if (!card) { throw new NotFound('Карточка не найдена'); }
-      res.send({ data: card });
+      checkCard(card, res);
     })
     .catch((err) => errModule.handleError(err, res, {
       badRequestMessage: errorMessages.badRequestLike,
@@ -57,8 +53,7 @@ module.exports.likeCard = (req, res) => {
 module.exports.dislikeCard = (req, res) => {
   Card.findByIdAndUpdate(req.params.cardId, { $pull: { likes: req.user._id } }, { new: true })
     .then((card) => {
-      if (!card) { throw new NotFound('Карточка не найдена'); }
-      res.send({ data: card });
+      checkCard(card, res);
     })
     .catch((err) => errModule.handleError(err, res, {
       badRequestMessage: errorMessages.badRequestLike,

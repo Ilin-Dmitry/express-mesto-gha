@@ -1,5 +1,6 @@
 const User = require('../models/user');
 const errModule = require('../errors/handleError');
+const NotFound = require('../errors/NotFound');
 
 const errorMessages = {
   badRequestCreateUser: 'Переданы некорректные данные при создании пользователя',
@@ -8,14 +9,6 @@ const errorMessages = {
   notFoundUser: 'Пользователь по указанному _id не найден',
   notFoundRefreshUser: ' Пользователь с указанным _id не найден',
 };
-
-class NotFound extends Error {
-  constructor(message) {
-    super(message);
-    this.name = 'NotFoundError';
-    this.statusCode = 404;
-  }
-}
 
 module.exports.showAllUsers = (req, res) => {
   User.find({})
