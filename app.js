@@ -25,10 +25,8 @@ app.use('/', require('./routes/cards'));
 app.use((req, res, next) => {
   const ERROR_NOT_FOUND = 404;
   Promise.reject(new Error('Путь не найден'))
-  .catch(() => res.status(ERROR_NOT_FOUND).send({ message: 'Такого адреса не существует' }))
-  // res.status(404).send("Sorry can't find that!");
-})
-// app.use(express.static(path.join(__dirname, 'public')));
+    .catch(() => res.status(ERROR_NOT_FOUND).send({ message: 'Такого адреса не существует' }));
+});
 
 app.listen(PORT, () => {
   console.log(`Сервер запущен на ${PORT} порту`);
