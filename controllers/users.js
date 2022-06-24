@@ -32,8 +32,16 @@ module.exports.showUser = (req, res) => {
 };
 
 module.exports.createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
-  User.create({ name, about, avatar })
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
+  User.create({
+    name, about, avatar, email, password,
+  })
+    .then((user) => {
+      console.log('user =>', user);
+      return user;
+    })
     .then((user) => res.send({ data: user }))
     .catch((err) => errModule.handleError(err, res, {
       badRequestMessage: errorMessages.badRequestCreateUser,
