@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs');
 const validator = require('validator');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const errModule = require('../errors/handleError');
 const NotFound = require('../errors/NotFound');
@@ -137,4 +138,44 @@ module.exports.refreshUserAvatar = (req, res) => {
       badRequestMessage: errorMessages.badRequestRefreshAvatar,
       notFoundMessage: errorMessages.notFoundRefreshUser,
     }));
+};
+
+// module.exports.login = (req, res) => {
+//   const { email, password } = req.body;
+//   User.findOne({ email })
+//     .then((user) => {
+//       if (!user) {
+//       return Promise.reject(new Error('Неправильные почта или пароль'));
+//       }
+//       return bcrypt.compare(password, user.password);
+//     })
+//     .then((matched) => {
+//       if (!matched) {
+//         return Promise.reject(new Error('Неправильные почта или пароль'));
+//       }
+//       res.send({ message: 'Все верно!'});
+//     })
+//     .catch((err) => {
+//       res.status(401).send({ message: err.message });
+//     })
+//     // next()
+// }
+
+module.exports.login = (req, res) => {
+  const { email, password } = req.body;
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      // аутентификация успешна! пользователь в переменной user
+      // res.send({ message: 'Все верно!!'})
+      const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
+      res.cookie('_id', token, {
+        maxAge: 3600000 * 24 * 7,
+        httpOnly: true,
+      })
+        .end();
+      // res.send({ _id: token });
+    })
+    .catch((err) => {
+      res.status(401).send({ message: err.message });
+    });
 };
