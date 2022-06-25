@@ -1,3 +1,5 @@
+const bcrypt = require('bcryptjs');
+const validator = require('validator');
 const User = require('../models/user');
 const errModule = require('../errors/handleError');
 const NotFound = require('../errors/NotFound');
@@ -31,22 +33,85 @@ module.exports.showUser = (req, res) => {
     });
 };
 
+// module.exports.createUser = (req, res) => {
+//   const {
+//     name, about, avatar, email, password,
+//   } = req.body;
+//   bcrypt.hash(password, 10)
+//     .then((hash) => {
+//       User.create({
+//         name, about, avatar, email, password: hash,
+//       })
+//         .then((user) => res.send({ data: user }));
+//     })
+//     .catch((err) => errModule.handleError(err, res, {
+//       badRequestMessage: errorMessages.badRequestCreateUser,
+//     }));
+// };
+
+const emailValidation = (email) => {
+  if (!validator.isEmail(email)) {
+    return Promise.reject(new Error('bad email'))
+  }
+
+};
+
 module.exports.createUser = (req, res) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
-  User.create({
-    name, about, avatar, email, password,
-  })
+  // validator.isEmail(email)
+    // .catch((err) => res.send('Ошибка в email'))
+  // try {
+  //   emailValidation(email);
+  // }
+  // catch (err) {
+  //   errModule.handleError(err, res, {
+  //     badRequestMessage: errorMessages.badRequestCreateUser,
+  //   })
+  // }
+
+  if (!validator.isEmail(email)) {
+    return res.status(444).send({ message: 'Введен email с ошибкой' });
+  }
+  User.findOne({ email })
     .then((user) => {
-      console.log('user =>', user);
-      return user;
-    })
-    .then((user) => res.send({ data: user }))
-    .catch((err) => errModule.handleError(err, res, {
-      badRequestMessage: errorMessages.badRequestCreateUser,
-    }));
+      if (user) {
+        return res.status(409).send({ message: 'Пользователь с таким email уже зарегистрирован' });
+      }
+      bcrypt.hash(password, 10)
+        .then((hash) => {
+          User.create({
+            name, about, avatar, email, password: hash,
+          })
+            .then((user) => res.send({ data: user }));
+        })
+        .catch((err) => errModule.handleError(err, res, {
+          badRequestMessage: errorMessages.badRequestCreateUser,
+        }));
+    });
 };
+
+
+// module.exports.createUser = (req, res) => {
+//   const {
+//     name, about, avatar, email, password,
+//   } = req.body;
+//   // if (!validator.isEmail(email)) {
+//   //   throw new Error('Неверный email');
+//   // }
+//   validator.isEmail(email)
+//     .then(() => {bcrypt.hash(password, 10)})
+//     .then((hash) => {
+//       User.create({
+//         name, about, avatar, email, password: hash,
+//       })
+//         .then((user) => res.send({ data: user }));
+//     })
+//     .catch((err) => errModule.handleError(err, res, {
+//       badRequestMessage: errorMessages.badRequestCreateUser,
+//     }));
+// };
 
 module.exports.refreshUser = (req, res) => {
   const { name, about } = req.body;
