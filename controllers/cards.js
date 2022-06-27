@@ -30,13 +30,31 @@ module.exports.createCard = (req, res) => {
 };
 
 module.exports.deleteCard = (req, res) => {
-  Card.findByIdAndRemove(req.params.cardId)
+  console.log('req =>', req);
+  console.log('req.user =>', req.user);
+  console.log('req.params =>', req.params);
+  Card.findById(req.params.cardId)
     .then((card) => {
-      checkCard(card, res);
+      console.log('req.user._id =>', req.user._id);
+      console.log('card.owner =>', card.owner.toString());
+      if (req.user._id !== card.owner.toString()) {
+        return res.status(403).send({ message: 'У вас недостаточно прав' })
+      }
+      Card.findByIdAndRemove(req.params.cardId)
+        .then((card) => {
+          checkCard(card, res);
+        })
     })
     .catch((err) => errModule.handleError(err, res, {
       notFoundMessage: errorMessages.notFoundDeleteCard,
     }));
+  // Card.findByIdAndRemove(req.params.cardId)
+  //   .then((card) => {
+  //     checkCard(card, res);
+  //   })
+  //   .catch((err) => errModule.handleError(err, res, {
+  //     notFoundMessage: errorMessages.notFoundDeleteCard,
+  //   }));
 };
 
 module.exports.likeCard = (req, res) => {
