@@ -171,6 +171,7 @@ module.exports.login = (req, res) => {
       res.cookie('_id', token, {
         maxAge: 3600000 * 24 * 7,
         httpOnly: true,
+        sameSite: true,
       })
         .end();
       // res.send({ _id: token });
@@ -179,3 +180,21 @@ module.exports.login = (req, res) => {
       res.status(401).send({ message: err.message });
     });
 };
+
+module.exports.showMe = (req, res) => {
+  console.log('Дошло сюда');
+  console.log('req.user =>', req.user);
+  // console.log('user =>', user);
+  User.findById(req.user._id)
+    .then((user) => {
+      if (!user) {
+        throw new NotFound('Пользователь не найден');
+      }
+      return res.send({ data: user });
+    })
+    .catch((err) => {
+      errModule.handleError(err, res, {
+        notFoundMessage: errorMessages.notFoundUser,
+      });
+    });
+}
