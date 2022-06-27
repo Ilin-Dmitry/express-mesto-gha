@@ -164,6 +164,7 @@ module.exports.refreshUserAvatar = (req, res) => {
 module.exports.login = (req, res) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
+  // return User.findUserByCredentials(email).select('+password')
     .then((user) => {
       // аутентификация успешна! пользователь в переменной user
       // res.send({ message: 'Все верно!!'})
