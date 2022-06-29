@@ -42,6 +42,12 @@ app.use((req, res) => {
     .catch(() => res.status(ERROR_NOT_FOUND).send({ message: 'Такого адреса не существует' }));
 });
 
+app.use((err, req, res, next) => {
+  console.log('reached errHandler in app.js, err =>', err)
+  // res.status(err.statusCode).send({ message: err.message });
+  res.status(err.statusCode).send({ message: err.message });
+});
+
 app.listen(PORT, () => {
   console.log(`Сервер запущен на ${PORT} порту`);
 });

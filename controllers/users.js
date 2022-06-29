@@ -3,7 +3,10 @@ const validator = require('validator');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const errModule = require('../errors/handleError');
-const NotFound = require('../errors/NotFound');
+const NotFoundError = require('../errors/NotFoundError');
+const BadRequestError = require('../errors/BadRequestError');
+const ConflictError = require('../errors/ConflictError');
+const UnauthorizedError = require('../errors/UnauthorizedError');
 
 const errorMessages = {
   badRequestCreateUser: 'Переданы некорректные данные при создании пользователя',
@@ -13,24 +16,24 @@ const errorMessages = {
   notFoundRefreshUser: ' Пользователь с указанным _id не найден',
 };
 
-module.exports.showAllUsers = (req, res) => {
+module.exports.showAllUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.send({ data: users }))
-    .catch((err) => errModule.handleError(err, res));
+    .catch((err) => next(errModule.handleError(err, res)));
 };
 
-module.exports.showUser = (req, res) => {
+module.exports.showUser = (req, res, next) => {
   User.findById(req.params.userId)
     .then((user) => {
       if (!user) {
-        throw new NotFound('Пользователь не найден');
+        throw new NotFoundError('Пользователь не найден');
       }
       return res.send({ data: user });
     })
     .catch((err) => {
-      errModule.handleError(err, res, {
+      next(errModule.handleError(err, res, {
         notFoundMessage: errorMessages.notFoundUser,
-      });
+      }));
     });
 };
 
@@ -54,10 +57,9 @@ const emailValidation = (email) => {
   if (!validator.isEmail(email)) {
     return Promise.reject(new Error('bad email'))
   }
-
 };
 
-module.exports.createUser = (req, res) => {
+module.exports.createUser = (req, res, next) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
@@ -73,12 +75,14 @@ module.exports.createUser = (req, res) => {
   // }
 
   if (!validator.isEmail(email)) {
-    return res.status(444).send({ message: 'Введен email с ошибкой' });
+    // return res.status(444).send({ message: 'Введен email с ошибкой' });
+    throw new BadRequestError('Введен email с ошибкой');
   }
   User.findOne({ email })
     .then((user) => {
       if (user) {
-        return res.status(409).send({ message: 'Пользователь с таким email уже зарегистрирован' });
+        // return res.status(409).send({ message: 'Пользователь с таким email уже зарегистрирован' });
+        return next(new ConflictError('Пользователь с таким email уже зарегистрирован'));
       }
       bcrypt.hash(password, 10)
         .then((hash) => {
@@ -87,9 +91,23 @@ module.exports.createUser = (req, res) => {
           })
             .then((user) => res.send({ data: user }));
         })
-        .catch((err) => errModule.handleError(err, res, {
-          badRequestMessage: errorMessages.badRequestCreateUser,
-        }));
+
+        // .catch((err) => {
+        //   console.log('err from createUser =>', err.message);
+        //   (errModule.handleError(err, res, {
+        //   badRequestMessage: errorMessages.badRequestCreateUser,
+        // }))});
+        // .catch(() => next(new Error('ё-моё ошибка')));
+        .catch((err) => {
+          // console.log('err from createUser =>', err.name, err.statusCode, err.message, err.code, err);
+          // console.log('err.message =>', err.message);
+          // console.log('err.name =>', err.name);
+          // console.log('err ===>', err.code, err.status, err.statusCode);
+          console.log('Поймал!');
+          next(errModule.handleError(err, res, {
+            badRequestMessage: errorMessages.badRequestCreateUser,
+          }));
+        });
     });
 };
 
@@ -114,30 +132,30 @@ module.exports.createUser = (req, res) => {
 //     }));
 // };
 
-module.exports.refreshUser = (req, res) => {
+module.exports.refreshUser = (req, res, next) => {
   const { name, about } = req.body;
   User.findByIdAndUpdate(req.user._id, { name, about }, {
     new: true,
     runValidators: true,
   })
     .then((user) => res.send({ data: user }))
-    .catch((err) => errModule.handleError(err, res, {
+    .catch((err) => next(errModule.handleError(err, res, {
       badRequestMessage: errorMessages.badRequestRefreshUser,
       notFoundMessage: errorMessages.notFoundRefreshUser,
-    }));
+    })));
 };
 
-module.exports.refreshUserAvatar = (req, res) => {
+module.exports.refreshUserAvatar = (req, res, next) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(req.user._id, { avatar }, {
     new: true,
     runValidators: true,
   })
     .then((user) => res.send({ data: user }))
-    .catch((err) => errModule.handleError(err, res, {
+    .catch((err) => next(errModule.handleError(err, res, {
       badRequestMessage: errorMessages.badRequestRefreshAvatar,
       notFoundMessage: errorMessages.notFoundRefreshUser,
-    }));
+    })));
 };
 
 // module.exports.login = (req, res) => {
@@ -161,7 +179,7 @@ module.exports.refreshUserAvatar = (req, res) => {
 //     // next()
 // }
 
-module.exports.login = (req, res) => {
+module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
   // return User.findUserByCredentials(email).select('+password')
@@ -178,24 +196,28 @@ module.exports.login = (req, res) => {
       // res.send({ _id: token });
     })
     .catch((err) => {
-      res.status(401).send({ message: err.message });
+      // console.log('err from login =>', err);
+      // res.status(401).send({ message: err.message });
+      next(new UnauthorizedError(err.message));
     });
 };
 
-module.exports.showMe = (req, res) => {
+module.exports.showMe = (req, res, next) => {
   console.log('Дошло сюда');
   console.log('req.user =>', req.user);
   // console.log('user =>', user);
   User.findById(req.user._id)
     .then((user) => {
       if (!user) {
-        throw new NotFound('Пользователь не найден');
+        throw new NotFoundError('Пользователь не найден');
       }
       return res.send({ data: user });
     })
     .catch((err) => {
-      errModule.handleError(err, res, {
-        notFoundMessage: errorMessages.notFoundUser,
-      });
+      next(
+        errModule.handleError(err, res, {
+          notFoundMessage: errorMessages.notFoundUser,
+        }),
+      );
     });
-}
+};
