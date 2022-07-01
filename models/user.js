@@ -54,9 +54,9 @@ const userSchema = new mongoose.Schema({
   },
   about: {
     type: String,
+    default: 'Исследователь',
     minlength: 2,
     maxlength: 30,
-    default: 'Исследователь',
   },
   email: {
     type: String,
