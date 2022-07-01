@@ -2,7 +2,7 @@ const router = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
 
 const {
-  showAllUsers, showUser, createUser, refreshUser, refreshUserAvatar, showMe,
+  showAllUsers, showUser, refreshUser, refreshUserAvatar, showMe,
 } = require('../controllers/users');
 
 router.get('/users/me', showMe);
@@ -15,7 +15,7 @@ router.patch('/users/me', celebrate({
 router.patch('/users/me/avatar', celebrate({
   body: Joi.object().keys({
     avatar: Joi.string().domain(),
-  })
+  }),
 }), refreshUserAvatar);
 router.get('/users', showAllUsers);
 router.get('/users/:userId', showUser);

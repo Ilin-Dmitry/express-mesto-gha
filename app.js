@@ -9,8 +9,6 @@ const auth = require('./middlewares/auth');
 const { PORT = 3000 } = process.env;
 const app = express();
 
-
-
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -25,7 +23,8 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 
 // app.use((req, res, next) => {
 //   req.user = {
-//     _id: '62a6c442ecd67235fce1ea20', // вставьте сюда _id созданного в предыдущем пункте пользователя
+//     _id: '62a6c442ecd67235fce1ea20',
+// вставьте сюда _id созданного в предыдущем пункте пользователя
 //   };
 //   next();
 // });
@@ -58,8 +57,8 @@ app.use((req, res) => {
 
 app.use(errors());
 
-app.use((err, req, res, next) => {
-  console.log('reached errHandler in app.js, err =>', err)
+app.use((err, req, res) => {
+  console.log('reached errHandler in app.js, err =>', err);
   // res.status(err.statusCode).send({ message: err.message });
   res.status(err.statusCode).send({ message: err.message });
 });

@@ -1,10 +1,10 @@
 const Card = require('../models/card');
 const errModule = require('../errors/handleError');
 const NotFoundError = require('../errors/NotFoundError');
-const BadRequestError = require('../errors/BadRequestError');
-const ConflictError = require('../errors/ConflictError');
-const UnauthorizedError = require('../errors/UnauthorizedError');
-const ForbiddenError = require('../errors/ForbiddenError')
+// const BadRequestError = require('../errors/BadRequestError');
+// const ConflictError = require('../errors/ConflictError');
+// const UnauthorizedError = require('../errors/UnauthorizedError');
+const ForbiddenError = require('../errors/ForbiddenError');
 
 const errorMessages = {
   badRequestShowCards: 'Переданы некорректные данные при создании карточки',
@@ -46,8 +46,8 @@ module.exports.deleteCard = (req, res, next) => {
         throw new ForbiddenError('У вас недостаточно прав');
       }
       Card.findByIdAndRemove(req.params.cardId)
-        .then((card) => {
-          checkCard(card, res);
+        .then((cardRes) => {
+          checkCard(cardRes, res);
         });
     })
     .catch((err) => next(errModule.handleError(err, res, {

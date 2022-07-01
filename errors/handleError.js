@@ -1,14 +1,14 @@
 const BadRequestError = require('./BadRequestError');
-const ConflictError = require('./ConflictError');
+// const ConflictError = require('./ConflictError');
 const InternalServerError = require('./InternalServerError');
 const NotFoundError = require('./NotFoundError');
-const UnauthorizedError = require('./UnauthorizedError');
+// const UnauthorizedError = require('./UnauthorizedError');
 
 module.exports = {
   handleError(err, res, { badRequestMessage = 'Переданы некорректные данные', notFoundMessage = 'Запрашиваемый объект не найден' }) {
-    const ERROR_BAD_REQUEST = 400;
-    const ERROR_NOT_FOUND = 404;
-    const ERROR_DEFAULT = 500;
+    // const ERROR_BAD_REQUEST = 400;
+    // const ERROR_NOT_FOUND = 404;
+    // const ERROR_DEFAULT = 500;
     if (err.message.includes('Illegal arguments')) {
       return new BadRequestError(badRequestMessage);
     }

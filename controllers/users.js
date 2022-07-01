@@ -53,11 +53,11 @@ module.exports.showUser = (req, res, next) => {
 //     }));
 // };
 
-const emailValidation = (email) => {
-  if (!validator.isEmail(email)) {
-    return Promise.reject(new Error('bad email'))
-  }
-};
+// const emailValidation = (email) => {
+//   if (!validator.isEmail(email)) {
+//     return Promise.reject(new Error('bad email'))
+//   }
+// };
 
 module.exports.createUser = (req, res, next) => {
   const {
@@ -81,15 +81,16 @@ module.exports.createUser = (req, res, next) => {
   User.findOne({ email })
     .then((user) => {
       if (user) {
-        // return res.status(409).send({ message: 'Пользователь с таким email уже зарегистрирован' });
+        // return res.status(409).send({ message: 'Пользователь
+        // с таким email уже зарегистрирован' });
         return next(new ConflictError('Пользователь с таким email уже зарегистрирован'));
       }
-      bcrypt.hash(password, 10)
+      return bcrypt.hash(password, 10)
         .then((hash) => {
           User.create({
             name, about, avatar, email, password: hash,
           })
-            .then((user) => res.send({ data: user }));
+            .then((userData) => res.send({ data: userData }));
         })
 
         // .catch((err) => {
@@ -99,7 +100,7 @@ module.exports.createUser = (req, res, next) => {
         // }))});
         // .catch(() => next(new Error('ё-моё ошибка')));
         .catch((err) => {
-          // console.log('err from createUser =>', err.name, err.statusCode, err.message, err.code, err);
+          // console.log('err from createUser =>', err.name, err.statusCode, err.message, err);
           // console.log('err.message =>', err.message);
           // console.log('err.name =>', err.name);
           // console.log('err ===>', err.code, err.status, err.statusCode);
@@ -110,7 +111,6 @@ module.exports.createUser = (req, res, next) => {
         });
     });
 };
-
 
 // module.exports.createUser = (req, res) => {
 //   const {

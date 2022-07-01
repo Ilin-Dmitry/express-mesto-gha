@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-const UnauthorizedError = require('../errors/UnauthorizedError')
+const UnauthorizedError = require('../errors/UnauthorizedError');
 
 // const userSchema = new mongoose.Schema({
 //   name: {
@@ -35,8 +35,6 @@ const UnauthorizedError = require('../errors/UnauthorizedError')
 //   },
 // });
 
-
-
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -51,7 +49,7 @@ const userSchema = new mongoose.Schema({
       validator(v) {
         return /https?:\/\/[a-z0-9-]+\.[\S]*/gi.test(v);
       },
-      message: props => `${props.value} is not a valid avatar url!`,
+      message: (props) => `${props.value} is not a valid avatar url!`,
     },
   },
   about: {
@@ -93,7 +91,7 @@ userSchema.statics.findUserByCredentials = function (email, password) {
     })
     .catch((err) => {
       console.log('one more err =>', err);
-    })
+    });
 };
 
 module.exports = mongoose.model('user', userSchema);
