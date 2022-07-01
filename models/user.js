@@ -86,10 +86,10 @@ userSchema.statics.findUserByCredentials = function (email, password) {
             return Promise.reject(new UnauthorizedError('Неправильные почта или пароль'));
           }
           return user;
-        })
-        .catch((err) => {
-          console.log('err catched in findUserBy... err=>', err, err.name, err.code, err.statusCode, err.message),
         });
+      // .catch((err) => {
+      //   console.log('err catched in findUserBy... err=>', err, err.name, err.message),
+      // });
     })
     .catch((err) => {
       console.log('one more err =>', err);
