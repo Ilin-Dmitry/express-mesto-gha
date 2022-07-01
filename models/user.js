@@ -47,6 +47,12 @@ const userSchema = new mongoose.Schema({
   avatar: {
     type: String,
     default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
+    validate: {
+      validator(v) {
+        return /https?:\/\/[a-z0-9-]+\.[\S]*/gi.test(v);
+      },
+      message: props => `${props.value} is not a valid avatar url!`,
+    },
   },
   about: {
     type: String,
@@ -82,7 +88,7 @@ userSchema.statics.findUserByCredentials = function (email, password) {
           return user;
         })
         .catch((err) => {
-          console.log('err catched in findUserBy... err=>', err, err.name, err.code, err.statusCode, err.message)
+          console.log('err catched in findUserBy... err=>', err, err.name, err.code, err.statusCode, err.message),
         });
     })
     .catch((err) => {
