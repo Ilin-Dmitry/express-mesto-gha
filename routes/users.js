@@ -14,7 +14,7 @@ router.patch('/users/me', celebrate({
 }), refreshUser);
 router.patch('/users/me/avatar', celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().domain(),
+    avatar: Joi.string().pattern(/https?:\/\/[a-z0-9-]+\.[\S]*/i),
   }),
 }), refreshUserAvatar);
 router.get('/users', showAllUsers);
