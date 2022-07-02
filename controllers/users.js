@@ -95,7 +95,7 @@ module.exports.createUser = (req, res, next) => {
                 data: {
                   name: userData.name,
                   avatar: userData.avatar,
-                  about: userData.avatar,
+                  about: userData.about,
                   email: userData.email,
                   _id: userData._id,
                 },
