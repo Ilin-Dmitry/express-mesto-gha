@@ -18,7 +18,11 @@ router.patch('/users/me/avatar', celebrate({
   }),
 }), refreshUserAvatar);
 router.get('/users', showAllUsers);
-router.get('/users/:userId', showUser);
+router.get('/users/:userId', celebrate({
+  params: Joi.object().keys({
+    userId: Joi.string().alphanum().length(24),
+  }),
+}), showUser);
 // router.post('/users', createUser);
 
 module.exports = router;
