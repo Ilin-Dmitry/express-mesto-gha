@@ -201,6 +201,15 @@ module.exports.login = (req, res, next) => {
         maxAge: 3600000 * 24 * 7,
         httpOnly: true,
         sameSite: true,
+      });
+      res.send({
+        data: {
+          name: user.name,
+          avatar: user.avatar,
+          about: user.about,
+          email: user.email,
+          _id: user._id,
+        },
       })
         .end();
       // res.send({ _id: token });
