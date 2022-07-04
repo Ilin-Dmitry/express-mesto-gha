@@ -43,7 +43,7 @@ module.exports.deleteCard = (req, res, next) => {
       console.log('req.user._id =>', req.user._id);
       console.log('рандомный консоль лог');
       // console.log('card.owner =>', card.owner);
-      console.log('card.owner =>', card.owner.toString());
+      // console.log('card.owner =>', card.owner.toString());
       console.log('рандомный консоль лог 2');
       if (!card) {
         throw new NotFoundError('Такой карточки не найдено');
