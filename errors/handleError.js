@@ -1,4 +1,5 @@
 const BadRequestError = require('./BadRequestError');
+const ForbiddenError = require('./ForbiddenError');
 // const ConflictError = require('./ConflictError');
 const InternalServerError = require('./InternalServerError');
 const NotFoundError = require('./NotFoundError');
@@ -7,6 +8,7 @@ const NotFoundError = require('./NotFoundError');
 module.exports = {
   handleError(err, res, { badRequestMessage = 'Переданы некорректные данные', notFoundMessage = 'Запрашиваемый объект не найден' }) {
     console.log('Начался полный handleError, err =>', err);
+    console.log('имя ошибки =>', err.name);
 
     // const ERROR_BAD_REQUEST = 400;
     // const ERROR_NOT_FOUND = 404;
@@ -28,6 +30,8 @@ module.exports = {
         // res.status(ERROR_NOT_FOUND).send({ message: notFoundMessage });
         // break;
         return new NotFoundError(notFoundMessage);
+      case 'ForbiddenError':
+        return new ForbiddenError('У вас недостаточно прав');
       default:
         // res.status(ERROR_DEFAULT).send({ message: 'ошибка по-умолчанию' });
         return new InternalServerError('ошибка по-умолчанию');
