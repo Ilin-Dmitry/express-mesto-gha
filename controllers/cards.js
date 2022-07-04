@@ -34,14 +34,19 @@ module.exports.createCard = (req, res, next) => {
 };
 
 module.exports.deleteCard = (req, res, next) => {
-  console.log('req =>', req);
+  // console.log('req =>', req);
   console.log('req.user =>', req.user);
   console.log('req.params =>', req.params);
   Card.findById(req.params.cardId)
     .then((card) => {
+      console.log('card =>', card);
       console.log('req.user._id =>', req.user._id);
-      console.log('card.owner =>', card.owner.toString());
-      if (req.user._id !== card.owner.toString()) {
+      console.log('рандомный консоль лог');
+      // console.log('card.owner =>', card.owner);
+      console.log('рандомный консоль лог 2');
+      if (!card) {
+        throw new NotFoundError('Такой карточки не найдено');
+      } else if (req.user._id !== card.owner.toString()) {
         // return res.status(403).send({ message: 'У вас недостаточно прав' })
         throw new ForbiddenError('У вас недостаточно прав');
       }
