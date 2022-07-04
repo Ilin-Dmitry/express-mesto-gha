@@ -41,9 +41,6 @@ module.exports.createUser = (req, res, next) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
-  if (!validator.isEmail(email)) {
-    throw new BadRequestError('Введен email с ошибкой');
-  }
   User.findOne({ email })
     .then((user) => {
       if (user) {
@@ -55,7 +52,7 @@ module.exports.createUser = (req, res, next) => {
             name, about, avatar, email, password: hash,
           })
             .then((userData) => {
-              res.send({
+              res.status(201).send({
                 data: {
                   name: userData.name,
                   avatar: userData.avatar,
@@ -118,12 +115,9 @@ module.exports.login = (req, res, next) => {
           email: user.email,
           _id: user._id,
         },
-      })
-        .end();
+      });
     })
-    .catch((err) => {
-      next(new UnauthorizedError(err.message));
-    });
+    .catch(next);
 };
 
 module.exports.showMe = (req, res, next) => {
