@@ -5,6 +5,7 @@ const cookieParser = require('cookie-parser');
 const { celebrate, Joi, errors } = require('celebrate');
 const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
+const NotFoundError = require('./errors/NotFoundError');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -37,10 +38,14 @@ app.use(auth);
 app.use('/', require('./routes/users'));
 app.use('/', require('./routes/cards'));
 
-app.use((req, res) => {
-  const ERROR_NOT_FOUND = 404;
-  Promise.reject(new Error('Путь не найден'))
-    .catch(() => res.status(ERROR_NOT_FOUND).send({ message: 'Такого адреса не существует' }));
+// app.use((req, res) => {
+//   const ERROR_NOT_FOUND = 404;
+//   Promise.reject(new Error('Путь не найден'))
+//     .catch(() => res.status(ERROR_NOT_FOUND).send({ message: 'Такого адреса не существует' }));
+// });
+
+app.use(() => {
+  throw new NotFoundError('Такого адреса не существует');
 });
 
 app.use(errors());
