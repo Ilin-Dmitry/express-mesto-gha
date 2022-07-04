@@ -23,6 +23,5 @@ router.get('/users/:userId', celebrate({
     userId: Joi.string().alphanum().length(24),
   }),
 }), showUser);
-// router.post('/users', createUser);
 
 module.exports = router;

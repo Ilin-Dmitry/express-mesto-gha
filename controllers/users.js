@@ -37,52 +37,16 @@ module.exports.showUser = (req, res, next) => {
     });
 };
 
-// module.exports.createUser = (req, res) => {
-//   const {
-//     name, about, avatar, email, password,
-//   } = req.body;
-//   bcrypt.hash(password, 10)
-//     .then((hash) => {
-//       User.create({
-//         name, about, avatar, email, password: hash,
-//       })
-//         .then((user) => res.send({ data: user }));
-//     })
-//     .catch((err) => errModule.handleError(err, res, {
-//       badRequestMessage: errorMessages.badRequestCreateUser,
-//     }));
-// };
-
-// const emailValidation = (email) => {
-//   if (!validator.isEmail(email)) {
-//     return Promise.reject(new Error('bad email'))
-//   }
-// };
-
 module.exports.createUser = (req, res, next) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
-  // validator.isEmail(email)
-    // .catch((err) => res.send('Ошибка в email'))
-  // try {
-  //   emailValidation(email);
-  // }
-  // catch (err) {
-  //   errModule.handleError(err, res, {
-  //     badRequestMessage: errorMessages.badRequestCreateUser,
-  //   })
-  // }
-
   if (!validator.isEmail(email)) {
-    // return res.status(444).send({ message: 'Введен email с ошибкой' });
     throw new BadRequestError('Введен email с ошибкой');
   }
   User.findOne({ email })
     .then((user) => {
       if (user) {
-        // return res.status(409).send({ message: 'Пользователь
-        // с таким email уже зарегистрирован' });
         return next(new ConflictError('Пользователь с таким email уже зарегистрирован'));
       }
       return bcrypt.hash(password, 10)
@@ -102,45 +66,13 @@ module.exports.createUser = (req, res, next) => {
               });
             });
         })
-
-        // .catch((err) => {
-        //   console.log('err from createUser =>', err.message);
-        //   (errModule.handleError(err, res, {
-        //   badRequestMessage: errorMessages.badRequestCreateUser,
-        // }))});
-        // .catch(() => next(new Error('ё-моё ошибка')));
         .catch((err) => {
-          // console.log('err from createUser =>', err.name, err.statusCode, err.message, err);
-          // console.log('err.message =>', err.message);
-          // console.log('err.name =>', err.name);
-          // console.log('err ===>', err.code, err.status, err.statusCode);
-          console.log('Поймал!');
           next(errModule.handleError(err, res, {
             badRequestMessage: errorMessages.badRequestCreateUser,
           }));
         });
     });
 };
-
-// module.exports.createUser = (req, res) => {
-//   const {
-//     name, about, avatar, email, password,
-//   } = req.body;
-//   // if (!validator.isEmail(email)) {
-//   //   throw new Error('Неверный email');
-//   // }
-//   validator.isEmail(email)
-//     .then(() => {bcrypt.hash(password, 10)})
-//     .then((hash) => {
-//       User.create({
-//         name, about, avatar, email, password: hash,
-//       })
-//         .then((user) => res.send({ data: user }));
-//     })
-//     .catch((err) => errModule.handleError(err, res, {
-//       badRequestMessage: errorMessages.badRequestCreateUser,
-//     }));
-// };
 
 module.exports.refreshUser = (req, res, next) => {
   const { name, about } = req.body;
@@ -168,34 +100,10 @@ module.exports.refreshUserAvatar = (req, res, next) => {
     })));
 };
 
-// module.exports.login = (req, res) => {
-//   const { email, password } = req.body;
-//   User.findOne({ email })
-//     .then((user) => {
-//       if (!user) {
-//       return Promise.reject(new Error('Неправильные почта или пароль'));
-//       }
-//       return bcrypt.compare(password, user.password);
-//     })
-//     .then((matched) => {
-//       if (!matched) {
-//         return Promise.reject(new Error('Неправильные почта или пароль'));
-//       }
-//       res.send({ message: 'Все верно!'});
-//     })
-//     .catch((err) => {
-//       res.status(401).send({ message: err.message });
-//     })
-//     // next()
-// }
-
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
-  // return User.findUserByCredentials(email).select('+password')
     .then((user) => {
-      // аутентификация успешна! пользователь в переменной user
-      // res.send({ message: 'Все верно!!'})
       const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
       res.cookie('_id', token, {
         maxAge: 3600000 * 24 * 7,
@@ -212,19 +120,13 @@ module.exports.login = (req, res, next) => {
         },
       })
         .end();
-      // res.send({ _id: token });
     })
     .catch((err) => {
-      // console.log('err from login =>', err);
-      // res.status(401).send({ message: err.message });
       next(new UnauthorizedError(err.message));
     });
 };
 
 module.exports.showMe = (req, res, next) => {
-  console.log('Дошло сюда');
-  console.log('req.user =>', req.user);
-  // console.log('user =>', user);
   User.findById(req.user._id)
     .then((user) => {
       if (!user) {

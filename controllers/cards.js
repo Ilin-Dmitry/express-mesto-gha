@@ -1,20 +1,18 @@
 const Card = require('../models/card');
 const errModule = require('../errors/handleError');
 const NotFoundError = require('../errors/NotFoundError');
-// const BadRequestError = require('../errors/BadRequestError');
-// const ConflictError = require('../errors/ConflictError');
-// const UnauthorizedError = require('../errors/UnauthorizedError');
 const ForbiddenError = require('../errors/ForbiddenError');
 
 const errorMessages = {
   badRequestShowCards: 'Переданы некорректные данные при создании карточки',
   badRequestLike: 'Переданы некорректные данные для постановки/снятии лайка',
-  notFoundDeleteCard: 'Карточка с указанным _id не найдена',
+  notFoundCard: 'Карточка с указанным _id не найдена',
   notFoundLike: 'Передан несуществующий id карточки',
+  forbidden: 'У вас недостаточно прав',
 };
 
 function checkCard(card, res) {
-  if (!card) { throw new NotFoundError('Карточка не найдена'); }
+  if (!card) { throw new NotFoundError(errorMessages.notFoundCard); }
   res.send({ data: card });
 }
 
@@ -34,22 +32,12 @@ module.exports.createCard = (req, res, next) => {
 };
 
 module.exports.deleteCard = (req, res, next) => {
-  // console.log('req =>', req);
-  console.log('req.user =>', req.user);
-  console.log('req.params =>', req.params);
   Card.findById(req.params.cardId)
     .then((card) => {
-      console.log('card =>', card);
-      console.log('req.user._id =>', req.user._id);
-      console.log('рандомный консоль лог');
-      // console.log('card.owner =>', card.owner);
-      // console.log('card.owner =>', card.owner.toString());
-      console.log('рандомный консоль лог 2');
       if (!card) {
-        throw new NotFoundError('Такой карточки не найдено');
+        throw new NotFoundError(errorMessages.notFoundCard);
       } else if (req.user._id !== card.owner.toString()) {
-        // return res.status(403).send({ message: 'У вас недостаточно прав' })
-        throw new ForbiddenError('У вас недостаточно прав');
+        throw new ForbiddenError(errorMessages.forbidden);
       }
       Card.findByIdAndRemove(req.params.cardId)
         .then((cardRes) => {
@@ -57,18 +45,10 @@ module.exports.deleteCard = (req, res, next) => {
         });
     })
     .catch((err) => {
-      console.log('в catch пришел err =>', err);
       next(errModule.handleError(err, res, {
-        notFoundMessage: errorMessages.notFoundDeleteCard,
+        notFoundMessage: errorMessages.notFoundCard,
       }));
     });
-  // Card.findByIdAndRemove(req.params.cardId)
-  //   .then((card) => {
-  //     checkCard(card, res);
-  //   })
-  //   .catch((err) => errModule.handleError(err, res, {
-  //     notFoundMessage: errorMessages.notFoundDeleteCard,
-  //   }));
 };
 
 module.exports.likeCard = (req, res, next) => {
